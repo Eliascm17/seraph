@@ -27,6 +27,10 @@ pub mod seraph {
         delegate_stake::handler(ctx)
     }
 
+    pub fn redelegate_stake<'info>(ctx: Context<'_, '_, '_, 'info, RedelegateStake>) -> Result<()> {
+        redelegate_stake::handler(ctx)
+    }
+
     pub fn deactivate_stake<'info>(ctx: Context<'_, '_, '_, 'info, DeactivateStake>) -> Result<()> {
         deactivate_stake::handler(ctx)
     }

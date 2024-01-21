@@ -43,7 +43,6 @@ async fn test_seraph() -> Result<(), Box<dyn std::error::Error>> {
     assert!(account.history.arr[0].vote_account_last_update_slot <= clock.slot);
 
     fixture.advance_num_epochs(6).await;
-
     fixture.copy_vote_accounts(7).await;
 
     let account: ValidatorHistory = fixture
@@ -93,6 +92,7 @@ async fn test_seraph() -> Result<(), Box<dyn std::error::Error>> {
     let top_10_percentile = TOTAL_VALIDATORS / 10; // 20 / 10 => 2
     let v_list_account: VList = fixture.load_and_deserialize(&fixture.v_list).await;
 
+    // delegate stake accounts with admin
     for i in 0..top_10_percentile {
         let instruction = Instruction {
             program_id: seraph::id(),
@@ -132,6 +132,53 @@ async fn test_seraph() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
+    // fixture.advance_num_epochs(1).await;
+
+    // redelegate stake accounts with admin
+    // for i in 0..top_10_percentile {
+    //     let instruction = Instruction {
+    //         program_id: seraph::id(),
+    //         data: seraph::instruction::RedelegateStake {}.data(),
+    //         accounts: seraph::accounts::RedelegateStake {
+    //             admin: fixture.admin.pubkey(),
+    //             stake_account: fixture.stake_accounts[i].pubkey(), // can be any of the stake accounts for for simplicity I put "i"
+    //             old_validator_vote: fixture.vote_accounts[i].pubkey(),
+    //             new_validator_vote: fixture.vote_accounts[i * 2].pubkey(),
+    //             clock: clock::id(),
+    //             stake_history: stake_history::id(),
+    //             stake_config: config::ID,
+    //             pool: fixture.pool,
+    //             redelegate_stake_account: fixture.redelegate_stake_accounts[i].pubkey(),
+    //             system_program: system_program::ID,
+    //             stake_program: solana_sdk::stake::program::ID,
+    //         }
+    //         .to_account_metas(None),
+    //     };
+
+    //     let transaction = Transaction::new_signed_with_payer(
+    //         &[instruction],
+    //         Some(&fixture.admin.pubkey()),
+    //         &[&fixture.admin, &fixture.redelegate_stake_accounts[i]],
+    //         fixture
+    //             .ctx
+    //             .borrow_mut()
+    //             .get_new_latest_blockhash()
+    //             .await
+    //             .unwrap(),
+    //     );
+    //     if let Err(e) = ctx
+    //         .borrow_mut()
+    //         .banks_client
+    //         .process_transaction_with_preflight(transaction)
+    //         .await
+    //     {
+    //         panic!("Error: {}", e);
+    //     }
+    // }
+
+    // fixture.advance_num_epochs(1).await;
+
+    // deactivate stake accounts with admin
     for i in 0..top_10_percentile {
         let instruction = Instruction {
             program_id: seraph::id(),

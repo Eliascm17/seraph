@@ -12,7 +12,7 @@ use anchor_spl::stake::{Stake as StakeProgram, StakeAccount};
 use crate::Pool;
 
 #[derive(Accounts)]
-pub struct Redelegate<'info> {
+pub struct RedelegateStake<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
 
@@ -57,15 +57,15 @@ pub struct Redelegate<'info> {
     pub stake_program: Program<'info, StakeProgram>,
 }
 
-pub fn handler<'info>(ctx: Context<'_, '_, '_, 'info, Redelegate>) -> Result<()> {
-    let Redelegate {
+pub fn handler<'info>(ctx: Context<'_, '_, '_, 'info, RedelegateStake>) -> Result<()> {
+    let RedelegateStake {
         admin,
         pool,
-        stake_account: _,
+        stake_account,
         stake_config,
         stake_history: _,
         clock: _,
-        old_validator_vote,
+        old_validator_vote: _,
         new_validator_vote,
         system_program: _,
         stake_program: _,
@@ -73,7 +73,7 @@ pub fn handler<'info>(ctx: Context<'_, '_, '_, 'info, Redelegate>) -> Result<()>
     } = ctx.accounts;
 
     let redelegate_ix = redelegate(
-        old_validator_vote.key,
+        stake_account.key,
         admin.key,
         new_validator_vote.key,
         &redelegate_stake_account.key(),
@@ -83,11 +83,12 @@ pub fn handler<'info>(ctx: Context<'_, '_, '_, 'info, Redelegate>) -> Result<()>
     .clone();
 
     msg!("Redelegating Stake");
+
     // redelegate account to dest validator
     invoke_signed(
         &redelegate_ix,
         &[
-            old_validator_vote.to_account_info(),
+            stake_account.to_account_info(),
             new_validator_vote.to_account_info(),
             redelegate_stake_account.to_account_info(),
             stake_config.to_account_info(),

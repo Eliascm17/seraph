@@ -49,6 +49,7 @@ pub struct STestFixture {
     pub admin: Keypair,
     pub pool: Pubkey,
     pub v_list: Pubkey,
+    pub redelegate_stake_accounts: Vec<Keypair>,
     pub keypair: Keypair,
 }
 
@@ -76,6 +77,7 @@ impl STestFixture {
         let vote_accounts: Vec<Keypair> = (0..TOTAL_VALIDATORS).map(|_| Keypair::new()).collect();
         let stakers: Vec<Keypair> = (0..TOTAL_VALIDATORS).map(|_| Keypair::new()).collect();
         let stake_accounts: Vec<Keypair> = (0..TOTAL_VALIDATORS).map(|_| Keypair::new()).collect();
+        let redelegate_stake_accounts = (0..2).map(|_| Keypair::new()).collect();
         let identity_keypairs: Vec<Keypair> =
             (0..TOTAL_VALIDATORS).map(|_| Keypair::new()).collect();
         let epoch_credits: Vec<Vec<(u64, u64, u64)>> = (0..TOTAL_VALIDATORS)
@@ -160,7 +162,7 @@ impl STestFixture {
             program.add_account(
                 stake_accounts[i].pubkey(),
                 new_stake_account(stake_account_lamports),
-            )
+            );
         }
 
         program.add_account(admin.pubkey(), system_account(AIRDROP_LAMPORTS));
@@ -183,6 +185,7 @@ impl STestFixture {
             admin,
             pool,
             v_list,
+            redelegate_stake_accounts,
             keypair,
         }
     }
